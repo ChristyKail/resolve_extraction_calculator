@@ -8,7 +8,7 @@ class ExtractionCalculatorApp(tk.Tk):
     def __init__(self):
         super().__init__()
 
-        self.title("Extraction Calculator")
+        self.title("Extraction Calculator" + " - " + ec.__version__)
 
         self.resizable(False, False)
 
@@ -17,7 +17,7 @@ class ExtractionCalculatorApp(tk.Tk):
         # noinspection PyTypeChecker
         self.rowconfigure(tuple(range(8)), weight=1, pad=10)
 
-        entry_box_width = 6
+        entry_box_width = 8
 
         # CAPTURE SECTION
 
@@ -130,8 +130,8 @@ class ExtractionCalculatorApp(tk.Tk):
             fit = ec.ExtractionCalculator(capture_width, capture_height, (ext_w, ext_h), squeeze=squeeze).resolve_scale('fit')
             crop = ec.ExtractionCalculator(capture_width, capture_height, (ext_w, ext_h), squeeze=squeeze).resolve_scale('crop')
 
-        self.label_fit_value.config(text=fit)
-        self.label_crop_value.config(text=crop)
+        self.label_fit_value.config(text=round(fit, 4))
+        self.label_crop_value.config(text=round(crop, 4))
 
 
 if __name__ == "__main__":

@@ -29,16 +29,20 @@ class TestExtractionCalculator(unittest.TestCase):
         self.assertEqual(result, (6048, 3024))
 
         # SV_6K_3:2_SPH_2.39_100%
-        # result = extraction_calculator.ExtractionCalculator(6048, 4032, 2.39, ext_scale=100, squeeze=1).extraction_res
-        # self.assertEqual(result, (6048, 2532))
+        result = extraction_calculator.ExtractionCalculator(6048, 4032, 2.39, ext_scale=100, squeeze=1).extraction_res
+        self.assertEqual(result, (6048, 2532))
+
+        # TBORN ANA
+        result = extraction_calculator.ExtractionCalculator(6048, 4032, 2.39, ext_scale=100, squeeze=1.8).extraction_res
+        self.assertEqual(result, (5354, 4032))
 
     def test_gc_extractions(self):
 
-        result = extraction_calculator.ExtractionCalculator(5120, 2700, 2.39, ext_scale=100, squeeze=1).extraction_res
+        result = extraction_calculator.ExtractionCalculator(5120, 2700, 2.3869, ext_scale=100, squeeze=1).extraction_res
         self.assertEqual(result, (5120, 2146))
 
-        result = extraction_calculator.ExtractionCalculator(6016, 3200, 2.39, ext_scale=100, squeeze=1).extraction_res
+        result = extraction_calculator.ExtractionCalculator(6016, 3200, 2.3869, ext_scale=100, squeeze=1).extraction_res
         self.assertEqual(result, (6016, 2520))
 
-        result = extraction_calculator.ExtractionCalculator(6144, 3160, 2.39, ext_scale=100, squeeze=1).extraction_res
+        result = extraction_calculator.ExtractionCalculator(6144, 3160, 2.3869, ext_scale=100, squeeze=1).extraction_res
         self.assertEqual(result, (6144, 2574))

@@ -1,5 +1,6 @@
 # ratios: bigger = wider
-import math
+
+__version__ = '0.1.0 beta'
 
 
 class ExtractionCalculator:
@@ -71,7 +72,7 @@ class ExtractionCalculator:
             resolve_scale_factor = window_height / self.ext_height
 
         print("{}Resolve scale factor: {}{}".format(PrintColors.OKGREEN, resolve_scale_factor, PrintColors.ENDC))
-        return round(resolve_scale_factor, 3)
+        return resolve_scale_factor
 
 
 def is_extraction_calculated(extraction):
@@ -82,9 +83,9 @@ def is_extraction_calculated(extraction):
 
 
 def calculate_extraction(capture_w, capture_h, ext_ratio, ext_scale=100, squeeze: float = 1):
+
     if ext_ratio == 2.39:
-        print("Requested extraction is 2.39:1, this has been calculated using true DCI 2.3869:1")
-        ext_ratio = 2.3869
+        print("Requested extraction is 2.39:1, but true DCI widescreen is 2.3869:1")
 
     ext_ratio_squeezed = ext_ratio / squeeze
     capture_ratio = capture_w / capture_h
@@ -112,14 +113,19 @@ def calculate_extraction(capture_w, capture_h, ext_ratio, ext_scale=100, squeeze
 
 
 def round_extraction(ext_width, ext_height):
-    ext_width = math.ceil(ext_width)
-    ext_height = math.floor(ext_height)
+
+    print("\nExtraction resolution: " + str(ext_width) + "x" + str(ext_height))
+
+    ext_width = round(ext_width)
+    ext_height = round(ext_height)
 
     if ext_width % 2 != 0:
         ext_width += 1
 
     if ext_height % 2 != 0:
         ext_height += 1
+
+    print("Rounded extraction resolution: " + str(ext_width) + "x" + str(ext_height) + "\n")
 
     return ext_width, ext_height
 
