@@ -22,6 +22,7 @@ class ExtractionCalculatorApp(tk.Tk):
         # CAPTURE SECTION
 
         self.label_capture = tk.Label(self, text="Capture", font=("Arial", 20), pady=10)
+        self.default_label_color = self.label_capture.cget("bg")
         self.label_capture.grid(row=0, column=0, columnspan=4, sticky="ew")
 
         self.label_capture_width = tk.Label(self, text="Width")
@@ -87,20 +88,42 @@ class ExtractionCalculatorApp(tk.Tk):
         self.label_crop.grid(row=8, column=2, sticky="e")
         self.label_crop_value.grid(row=8, column=3, sticky="w")
 
+    #     disclaimer label
+        self.label_disclaimer = tk.Label(self, text="This tool is still in beta, use with caution!\n\nIn order to "
+                                                    "generate extractions with even\n numbers of pixels, some rounding "
+                                                    "may occur.\n\nRounding may not match other tools/extraction "
+                                                    "generators.", font=("Arial", 14), padx=15, pady=10)
+        self.label_disclaimer.grid(row=9, column=0, columnspan=4, sticky="ew")
+
     def calculate(self):
+
+        self.label_extraction.config(bg=self.default_label_color)
+        self.label_capture.config(bg=self.default_label_color)
 
         try:
             capture_width = int(self.entry_capture_width.get())
             capture_height = int(self.entry_capture_height.get())
             squeeze = float(self.entry_squeeze.get())
         except ValueError:
+            # set the capture label color to red
+            self.label_capture.config(bg="red")
             print("Invalid capture width, height, or squeeze")
             return
 
         try:
-            ratio = float(self.entry_ratio.get())
-            scale = float(self.entry_scale.get())
-        except ValueError:
+
+            ratio = self.entry_ratio.get()
+            scale = self.entry_scale.get()
+
+            if ':' in ratio:
+                print("Ratio is in the form of width:height")
+                ratio = ratio.split(':')
+                ratio = float(ratio[0]) / float(ratio[1])
+
+            ratio = float(ratio)
+            scale = float(scale)
+        except ValueError as e:
+            print(e)
             calculate_from_ratio = False
         else:
             calculate_from_ratio = True
@@ -122,6 +145,8 @@ class ExtractionCalculatorApp(tk.Tk):
                 ext_h = int(self.entry_extraction_height.get())
             except ValueError:
                 print("Invalid extraction width or height")
+                # change color of button to red
+                self.label_extraction.config(bg="red")
                 return
 
             self.entry_scale.delete(0, tk.END)
