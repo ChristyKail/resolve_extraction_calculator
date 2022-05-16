@@ -130,14 +130,18 @@ class ExtractionCalculatorApp(tk.Tk):
 
         if calculate_from_ratio:
 
-            ext_w, ext_h = ec.calculate_extraction(capture_width, capture_height, ratio, ext_scale=scale, squeeze=squeeze)
+            extraction = ec.ExtractionCalculator(capture_width, capture_height, ratio, ext_scale=scale, squeeze=squeeze)
+
+            print("Extraction: ", extraction)
+
+            ext_w, ext_h = extraction.extraction_res
             self.entry_extraction_width.delete(0, tk.END)
             self.entry_extraction_width.insert(0, ext_w)
             self.entry_extraction_height.delete(0, tk.END)
             self.entry_extraction_height.insert(0, ext_h)
 
-            fit = ec.ExtractionCalculator(capture_width, capture_height, ratio, ext_scale=scale, squeeze=squeeze).resolve_scale('fit')
-            crop = ec.ExtractionCalculator(capture_width, capture_height, ratio, ext_scale=scale, squeeze=squeeze).resolve_scale('crop')
+            fit = extraction.resolve_scale('fit')
+            crop = extraction.resolve_scale('crop')
 
         else:
             try:
