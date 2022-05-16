@@ -1,6 +1,7 @@
-# ratios: bigger = wider
 
-__version__ = '0.1.0 beta'
+import math
+
+__version__ = '0.2.0 beta'
 
 
 class ExtractionCalculator:
@@ -10,6 +11,8 @@ class ExtractionCalculator:
 
         self.capture_w = capture_w
         self.capture_h = capture_h
+        self.squeeze = squeeze
+        self.ext_scale = ext_scale
 
         self.capture_ratio = self.capture_w / self.capture_h
         self.capture_ratio_desqueezed = self.capture_ratio * squeeze
@@ -20,11 +23,22 @@ class ExtractionCalculator:
             self.ext_ratio = self.ext_width / self.ext_height
 
         else:
-            self.ext_width, self.ext_height = calculate_extraction(capture_w, capture_h, extraction, ext_scale, squeeze)
             self.ext_ratio = extraction
+            self.ext_width, self.ext_height = calculate_extraction(capture_w, capture_h, extraction, ext_scale, squeeze)
+            self.ext_width, self.ext_height = self.round_extraction()
 
-        self.squeeze = squeeze
         self.extraction_res = (self.ext_width, self.ext_height)
+
+    def __repr__(self):
+
+        if self.squeeze == 1:
+            ana_squeeze = "SPH"
+        else:
+            ana_squeeze = f"ANA_{self.squeeze}x"
+
+        compiled = f'{self.capture_w}x{self.capture_h}_{ana_squeeze}_{self.ext_ratio}_{self.ext_scale} -> {self.ext_width}x{self.ext_height}'
+
+        return '{}{}{}'.format(PrintColors.OKGREEN, compiled, PrintColors.ENDC)
 
     def resolve_scale(self, mode):
 
@@ -74,6 +88,31 @@ class ExtractionCalculator:
         print("{}Resolve scale factor: {}{}".format(PrintColors.OKGREEN, resolve_scale_factor, PrintColors.ENDC))
         return resolve_scale_factor
 
+    def round_extraction(self):
+
+        # check if we should give width or height priority
+        width_fraction = self.ext_width / self.capture_w
+        height_fraction = self.ext_height / self.capture_h
+
+        if width_fraction > height_fraction:
+            # give width priority
+            rounded_w = round_to_nearest_even(self.ext_width)
+
+            rounded_h = rounded_w / self.ext_ratio * self.squeeze
+            rounded_h = round_to_nearest_even(rounded_h, 'round')
+
+        else:
+            # give height priority
+            rounded_h = round_to_nearest_even(self.ext_height)
+
+            rounded_w = rounded_h * self.ext_ratio / self.squeeze
+            rounded_w = round_to_nearest_even(rounded_w, 'round')
+
+        if rounded_w > self.capture_w or rounded_h > self.capture_h:
+            raise ValueError("Extraction dimensions are too large {} {}".format(rounded_w, rounded_h))
+
+        return rounded_w, rounded_h
+
 
 def is_extraction_calculated(extraction):
     if type(extraction) is tuple:
@@ -83,7 +122,6 @@ def is_extraction_calculated(extraction):
 
 
 def calculate_extraction(capture_w, capture_h, ext_ratio, ext_scale=100, squeeze: float = 1):
-
     if ext_ratio == 2.39:
         print("Requested extraction is 2.39:1, but true DCI widescreen is 2.3869:1")
 
@@ -105,29 +143,21 @@ def calculate_extraction(capture_w, capture_h, ext_ratio, ext_scale=100, squeeze
     extraction_height = extraction_height * ext_scale
     extraction_width = extraction_width * ext_scale
 
-    extraction_width, extraction_height = round_extraction(extraction_width, extraction_height)
-
-    print("Extraction resolution: " + str(extraction_width) + "x" + str(extraction_height))
-
     return extraction_width, extraction_height
 
 
-def round_extraction(ext_width, ext_height):
+def round_to_nearest_even(value, mode="round"):
+    value = value / 2
 
-    print("\nExtraction resolution: " + str(ext_width) + "x" + str(ext_height))
+    if mode == "ceil":
+        value = math.ceil(value)
+    elif mode == "floor":
+        value = math.floor(value)
+    else:
+        value = round(value)
 
-    ext_width = round(ext_width)
-    ext_height = round(ext_height)
-
-    if ext_width % 2 != 0:
-        ext_width += 1
-
-    if ext_height % 2 != 0:
-        ext_height += 1
-
-    print("Rounded extraction resolution: " + str(ext_width) + "x" + str(ext_height) + "\n")
-
-    return ext_width, ext_height
+    value = value * 2
+    return value
 
 
 class PrintColors:
@@ -142,4 +172,4 @@ class PrintColors:
 
 
 if __name__ == "__main__":
-    pass
+    print(ExtractionCalculator(4448, 3096, 2, squeeze=1.65))
